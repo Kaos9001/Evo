@@ -1,2 +1,2 @@
 # Evo
-Cell evolution simulator/sandbox
+Cell evolution simulator/sandbox built on Python
