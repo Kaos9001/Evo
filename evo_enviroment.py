@@ -18,16 +18,13 @@ class Enviroment:
 
 display = evo_g.Renderer((800,800))
 test = Enviroment(display)
-for x in range(1000):
+for x in range(100):
 	test.populate(evo_c.Creature())
 
-i  = 0
+i  = 42
 while True:
 	for bob in test.pop:
-		if i == random.randint(0,50):
-			num = random.randint(0,3)
-			bob.move(num)
-			i = 0
+		num = random.randint(0,3)
+		bob.move(num)
 	test.update_all()
 	display.update()
-	i+=1
