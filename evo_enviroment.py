@@ -14,17 +14,33 @@ class Enviroment:
 			creature.update()
 	def draw_creature(self,creature):
 		self.renderer.draw_dot(creature.position,10,(255,0,0))
-
+	def get_nearest(self,creature):
+		point = creature.position
+		best = [None,None]
+		smallest = 999999
+		for other in self.pop:
+			if other != creature:
+				num = (creature.position[0]-other.position[0])**2+(creature.position[1]-other.position[1])**2
+				if num < smallest:
+					smallest = num
+					best = other.position
+		return best
 
 display = evo_g.Renderer((800,800))
 test = Enviroment(display)
-for x in range(100):
-	test.populate(evo_c.Creature())
+for x in range(50):
+	test.populate(evo_c.Creature([2,5,4],initial=True))
 
 i  = 42
+a = test.pop[0]
 while True:
 	for bob in test.pop:
-		num = random.randint(0,3)
-		bob.move(num)
+		bob.brain.learn(0.05)
+		r = bob.brain.think(bob.position)
+		chosen = r.index(max(r))
+		if bob == a:
+			print(r)
+			print(chosen)
+		bob.move(chosen)
 	test.update_all()
 	display.update()
