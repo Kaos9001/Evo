@@ -10,20 +10,21 @@ class Creature:
 		self.data = (layers,initial)
 		self.brain = Creature_Brain(layers,initial)
 		self.fitness = 0.0
+		self.const = 0.0
 	def move(self,direction):
-		possible = [(0,0.1),(0,-0.1),(0.1,0),(-0.1,0)]
-		self.velocity = [self.velocity[x] + possible[direction][x] for x in range(2)]
-		for num, item in enumerate(self.velocity):
-			if item > 2:
-				self.velocity[num] = 2
-			elif item < -2:
-				self.velocity[num] = -2
+		possible = [(0,1),(0,-1),(1,0),(-1,0)]
+		if possible[direction] == self.velocity:
+			self.const += 0.05
+			self.fitness += self.const
+		else:
+			self.const = 0.0
+		self.velocity = possible[direction]
 	def update(self):
 		self.position = [self.position[x]+self.velocity[x] for x in range(2)]
-		a = (abs(self.position[0]-400)+abs(self.position[1]-400))
+		a = 0.5 #(abs(self.position[0]-400)+abs(self.position[1]-400))
 		if a == 0:
 			a = 1
-		self.fitness += 5.0/a
+		self.fitness += a #10.0/a
 class Creature_Brain:
 	def __init__(self,layers,initial=False):
 		self.layers = self.make_layers(layers,initial)
