@@ -18,12 +18,12 @@ class Creature:
 				self.velocity[num] = 2
 			elif item < -2:
 				self.velocity[num] = -2
-			else:
-				self.fitness += 3
 	def update(self):
 		self.position = [self.position[x]+self.velocity[x] for x in range(2)]
-		self.fitness += 1
-
+		a = (abs(self.position[0]-400)+abs(self.position[1]-400))
+		if a == 0:
+			a = 1
+		self.fitness += 5.0/a
 class Creature_Brain:
 	def __init__(self,layers,initial=False):
 		self.layers = self.make_layers(layers,initial)
