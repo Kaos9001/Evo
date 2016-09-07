@@ -11,20 +11,21 @@ class Creature:
 		self.brain = Creature_Brain(layers,initial)
 		self.fitness = 0.0
 		self.const = 0.0
+		self.speed = round(random.random()+1,3)
 	def move(self,direction):
 		possible = [(0,1),(0,-1),(1,0),(-1,0)]
-		if possible[direction] == self.velocity:
-			self.const += 0.05
-			self.fitness += self.const
-		else:
-			self.const = 0.0
-		self.velocity = possible[direction]
+		self.velocity = [possible[direction][0]*self.speed,possible[direction][1]*self.speed]
 	def update(self):
 		self.position = [self.position[x]+self.velocity[x] for x in range(2)]
-		a = 0.5 #(abs(self.position[0]-400)+abs(self.position[1]-400))
-		if a == 0:
-			a = 1
-		self.fitness += a #10.0/a
+		for x in range(2):
+			if self.position[x] > 800:
+				self.position[x] = 0
+				self.fitness -= 50
+			if self.position[x] < 0:
+				self.position[x] = 800
+				self.fitness -= 50
+		self.fitness += 0.5
+
 class Creature_Brain:
 	def __init__(self,layers,initial=False):
 		self.layers = self.make_layers(layers,initial)
