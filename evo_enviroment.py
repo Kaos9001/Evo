@@ -2,81 +2,82 @@ import evo_graphic as evo_g
 import evo_creature as evo_c
 import random
 
-class Enviroment:
+class Better:
 	def __init__(self,renderer):
+		self.pop = {}
+		self.types = {}
 		self.renderer = renderer
-		self.nearest = {}
-		self.pop = []
-	def populate(self,creature):
-		self.pop.append(creature)
+	def populate(self,creatures):
+		for pair in creatures:
+			if pair[0].__name__ not in self.types.keys():
+				self.types[pair[0].__name__] = pair[0]
+				self.pop[pair[0].__name__] = []
+			for _ in range(pair[1]):
+				self.pop[pair[0].__name__].append(pair[0](pair[2],self))
+				self.pop[pair[0].__name__][len(self.pop[pair[0].__name__])-1].randomize_brain()
 	def update_all(self):
-		for creature in self.pop:
-			self.draw_creature(creature)
-			creature.update()
-	def draw_creature(self,creature):
-		self.renderer.draw_dot([int(x) for x in creature.position],10,(255,0,0))
+		for ctype in self.pop:
+			for creature in self.pop[ctype]:
+				creature.update()
+	def get_best_of_type(self,ctype):
+		chosen = random.random()*sum([x.fitness for x in self.pop[ctype]])
+		total = 0
+		for creature in self.pop[ctype]:
+			total += creature.fitness
+			if total >= chosen:
+				return creature
+		return self.get_oblg_best(ctype)
+	def get_oblg_best(self,ctype):
+		best = random.sample(self.pop[ctype],1)[0]
+		for creature in self.pop[ctype]:
+			if best.fitness <= creature.fitness:
+				best = creature
+		return best
+	def refill(self,ctype):
+		old = self.get_best_of_type(ctype)
+		new = self.types[ctype](old.scheme,self)
+		new.brain.layers = old.brain.get_layers_copy()
+		new.brain.variate_all(50,10)
+		new.color = tuple([max(30, min(255, x+random.randint(-10,10))) for x in old.color])
+		self.pop[ctype].append(new)
 	def get_nearest(self,creature):
 		point = creature.position
 		best = None
 		smallest = 999999
-		for other in self.pop:
+		for other in self.pop[creature.__class__.__name__]:
 			if other != creature:
 				num = (creature.position[0]-other.position[0])**2+(creature.position[1]-other.position[1])**2
 				if num < smallest:
 					smallest = num
 					best = other
 		return best
-	def check_for_deaths(self):
-		for creature in self.pop:
-			if creature.fitness < -200:
-				self.refill()
-				self.pop.remove(creature)
-			nval = self.get_nearest(creature)
-			if creature.position[0] >= nval.position[0] >= creature.position[0] - 10 or creature.position[0] <= nval.position[0] <= creature.position[0] + 10:
-				if creature.position[1] >= nval.position[1] >= creature.position[1] - 10 or creature.position[1] <= nval.position[1] <= creature.position[1] + 10:
-					self.refill()
-					self.refill()
-					self.pop.remove(creature)
-					self.pop.remove(nval)
-	def get_best(self):
-		chosen = random.random()*sum([x.fitness for x in self.pop])
-		total = 0
-		for creature in self.pop:
-			total += creature.fitness
-			if total >= chosen:
-				return creature
-		return self.get_oblg_best()
-	def get_oblg_best(self):
-		best = random.sample(self.pop,1)[0]
-		ft_best = 0
-		for creature in self.pop:
-			if ft_best <= creature.fitness:
-				best = creature
-				ft_best = creature.fitness
-		return best
-	def refill(self):
-		old = self.get_best()
-		new = evo_c.Creature(old.data[0],old.data[1])
-		new.brain.layers = old.brain.copy()
-		new.brain.learn(50,0,10)
-		self.pop.append(new)
+	def check_collisions(self):
+		for ctype in self.pop:
+			for creature in self.pop[ctype]:
+				if creature.fitness < creature.MINFITNESS:
+					self.refill(creature.__class__.__name__)
+					self.pop[ctype].remove(creature)
+				other = self.get_nearest(creature)
+				if creature.position[0] >= other.position[0] >= creature.position[0] - (creature.SIZE+other.SIZE) or creature.position[0] <= other.position[0] <= creature.position[0] + (creature.SIZE+other.SIZE):
+					if creature.position[1] >= other.position[1] >= creature.position[1] - (creature.SIZE+other.SIZE) or creature.position[1] <= other.position[1] <= creature.position[1] + (creature.SIZE+other.SIZE):
+						creature.fitness -= creature.PENALTY
+						other.fitness -= other.PENALTY
 
-display = evo_g.Renderer((800,800))
-test = Enviroment(display)
-for x in range(50):
-	test.populate(evo_c.Creature([4,6,5,4],initial=True))
+display = evo_g.Renderer((1280,728))
+test = Better(display)
+test.populate([(evo_c.Ballie,20,[4,8,6,4]),(evo_c.Ballie2,50,[4,4,4,4])])
 
-epsilon  = 50
-a = test.pop[0]
+epsilon  = 10
 while True:
-	test.check_for_deaths()
-	for bob in test.pop:
-		if False: #random.randint(0,epsilon) == epsilon:
-			bob.move(random.randint(0,3))
-		else:
-			near = test.get_nearest(bob).position
-			r = bob.brain.think([bob.position[0],bob.position[1],near[0],near[1]])
-			chosen = r.index(max(r))
-			bob.move(chosen)
+	test.check_collisions()
+	for ctype in test.pop:
+		for bob in test.pop[ctype]:
+			if random.randint(0,epsilon) == epsilon:
+				bob.move(random.randint(0,3))
+			else:
+				near = test.get_nearest(bob).position
+				r = bob.brain.process([bob.position[0],bob.position[1],bob.position[0]-near[0],bob.position[1]-near[1]])
+				chosen = r.index(max(r))
+				bob.move(chosen)
 	test.update_all()
 	display.update()

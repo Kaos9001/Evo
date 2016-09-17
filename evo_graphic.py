@@ -4,6 +4,7 @@ import sys
 class Renderer:
 	def __init__(self,size):
 		self.screen = pg.display.set_mode(size)
+		self.size = size
 	def draw_dot(self,position,radius,color):
 		pg.draw.circle(self.screen,color,position,radius,0)
 	def start(self):
