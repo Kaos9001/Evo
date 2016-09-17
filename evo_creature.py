@@ -20,7 +20,7 @@ class Creature:
 		self.fitness = 0.0
 		self.constants()
 		self.speed = random.uniform(1,self.MAX_SPEED)
-		self.color = (random.randint(30,255),random.randint(30,255),random.randint(30,255))
+		self.color = (random.randint(0,220),random.randint(0,220),random.randint(0,220))
 	def randomize_brain(self):
 		self.brain.set_all_random(self.BRAIN_START_WEIGHTS_VAR,self.BRAIN_START_BIAS_VAR)
 	def move(self,direction):
@@ -47,23 +47,18 @@ class Creature:
 				self.wall_collision_hook()
 	def wall_collision_hook(self):
 		pass
+	def food_collision_hook(self):
+		pass
 
 
 class Ballie(Creature):
-	def update_hook(self):
-		self.fitness += 0.5
-		self.fitness = min(100,self.fitness)
-	def wall_collision_hook(self):
-		self.fitness -= 10
-
-
-class Ballie2(Creature):
-	def update_hook(self):
-		self.fitness += 0.25
-		self.fitness = min(100,self.fitness)
-	def wall_collision_hook(self):
-		self.fitness -= 10
 	def constants(self):
-		self.SIZE = 7
-		self.MAX_SPEED = 5
-		self.PENALTY = -20
+		self.fitness = 100.0
+		self.PENALTY = -5
+	def update_hook(self):
+		self.fitness -= 0.5
+		#self.fitness = min(100,self.fitness)
+	def wall_collision_hook(self):
+		self.fitness -= 25
+	def food_collision_hook(self):
+		self.fitness += 10
