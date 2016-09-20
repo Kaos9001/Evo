@@ -54,11 +54,12 @@ class Creature:
 class Ballie(Creature):
 	def constants(self):
 		self.fitness = 100.0
-		self.PENALTY = -5
+		self.PENALTY = 0
+		self.MAX_SPEED = 1
 	def update_hook(self):
 		self.fitness -= 0.5
 		#self.fitness = min(100,self.fitness)
 	def wall_collision_hook(self):
-		self.fitness -= 25
+		self.fitness -= 50
 	def food_collision_hook(self):
-		self.fitness += 10
+		self.fitness += 5

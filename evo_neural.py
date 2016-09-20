@@ -43,5 +43,3 @@ class Brain:
 				copy[num_l].append(Neuron())
 				copy[num_l][num_n].set(self.layers[num_l][num_n].weights,self.layers[num_l][num_n].bias)
 		return copy
-
-crossover

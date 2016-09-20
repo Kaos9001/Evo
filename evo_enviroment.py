@@ -20,7 +20,7 @@ class Better:
 		self.food = []
 		self.types = {}
 		self.renderer = renderer
-		self.odd_food = 1000
+		self.odd_food = 100
 	def populate(self,creatures):
 		for pair in creatures:
 			if pair[0].__name__ not in self.types.keys():
@@ -37,6 +37,7 @@ class Better:
 			food.draw()
 			if food.fitness < 0:
 				self.food.remove(food)
+				self.odd_food /= 1.5
 	def get_best_of_type(self,ctype):
 		chosen = random.random()*sum([x.fitness for x in self.pop[ctype]])
 		total = 0
@@ -99,14 +100,15 @@ class Better:
 							creature.food_collision_hook()
 							food.fitness -= 5
 	def spawn_food(self):
-		if random.randint(0,self.odd_food) == self.odd_food:
+		if random.randint(0,int(self.odd_food)) == int(self.odd_food):
 			self.food.append(Food(self))
+			self.odd_food *= 1.5
 	def update_self(self):
 		test.spawn_food()
 		test.check_collisions()
 		test.check_food_collisions()
 
-display = evo_g.Renderer((1280,728))
+display = evo_g.Renderer((1000,1000))
 test = Better(display)
 test.populate([(evo_c.Ballie,50,[6,6,5,4])])
 
@@ -115,16 +117,16 @@ while True:
 	test.update_self()
 	for ctype in test.pop:
 		for bob in test.pop[ctype]:
-			if random.randint(0,epsilon) == epsilon:
+			if False: #random.randint(0,epsilon) == epsilon:
 				bob.move(random.randint(0,3))
 			else:
-				near = test.get_nearest(bob).position
+				#near = test.get_nearest(bob).position
 				food = test.get_nearest_food(bob)
 				if food == None:
-					food = (0,0)
+					food = (-1,-1)
 				else:
 					food = food.position
-				r = bob.brain.process([bob.position[0],bob.position[1],near[0],near[1],food[0],food[1]])
+				r = bob.brain.process([bob.position[0],bob.position[1],food[0],food[1]])
 				chosen = r.index(max(r))
 				bob.move(chosen)
 	test.update_all()
