@@ -1,0 +1,8 @@
+[Connection]
+mut_size=2
+mut_total_chance=0.1
+mut_total_new=15
+[Node]
+mut_size=1
+mut_total_chance=0.1
+mut_total_new=10
