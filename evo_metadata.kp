@@ -6,3 +6,10 @@ mut_total_new=15
 mut_size=1
 mut_total_chance=0.1
 mut_total_new=10
+[Population]
+strong_parent_passdown_chance=0.75
+min_fitness=0.1
+[Species]
+structure_distance_mult=3
+weight_distance_mult=1
+minimum_compatibility=0.5
